@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" type="text/css" href="./style.css" />
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YouTube Channel Stats</title>
+  </head>
+  <body>
+    <h1>YouTube Channel Stats</h1>
+    <label for="channelInput">Enter Channel ID or Username:</label>
+    <div id="inputContainer">
+      <input
+        type="text"
+        id="channelInput"
+        placeholder="Channel ID or Username"
+        onkeydown="handleEnterKey(event)"
+      />
+      <button onclick="getChannelStats()">Get Channel Stats</button>
+    </div>
+
+    <div id="channelStats">
+      <div id="mediaContainer">
+        <img
+          id="banner"
+          alt="Channel Banner"
+          src="https://yt3.googleusercontent.com/hcRlZKIkSzyrc9BBG5lVDQaUA4kjLKV9xhWwwbN3U6fsu0FlLI7IqdDMQL6TZZVT-ROsndOfXg"
+        />
+        <img
+          id="thumbnail"
+          alt="Channel Thumbnail"
+          src="https://yt3.ggpht.com/584JjRp5QMuKbyduM_2k5RlXFqHJtQ0qLIPZpwbUjMJmgzZngHcam5JMuZQxyzGMV5ljwJRl0Q=s800-c-k-c0x00ffffff-no-rj"
+        />
+      </div>
+      <div id="channelInfo">
+        <p><span id="title">YouTube Channel</span></p><!--youtube channel name-->
+        <p><span id="description">Channel description</span></p><!--channel descrption-->
+      </div>
+      <p id="subscribe">
+        Total Subscribers: <span id="subscribersCount">0</span>
+      </p>
+      <p id="views">Total Views: <span id="viewCount">0</span></p>
+      <p id="videos">Total Videos: <span id="videoCount">0</span></p>
+    </div>
+
+    <p id="error" style="color: red; display: none"></p>
+
+    <script>
+      function handleEnterKey(event) {
+        if (event.key === "Enter") {
+          getChannelStats();
+        }
+      }
+      async function getChannelStats() {
+        try {
+          const channelInput = document.getElementById("channelInput").value;
+          //if no channel name alert error
+          if (!channelInput) {
+            alert("Please enter a valid Channel ID or Username.");
+            return;
+          }
+
+          const response = await fetch(
+            `/channel-stats?channelId=${channelInput}`
+          );
+          if (response.ok) {
+            const data = await response.json();
+
+            // Reset counts to 0 before updating
+            updateCount("subscribersCount", 0, data.totalSubscribers);
+            updateCount("viewCount", 0, data.viewCount);
+            updateCount("videoCount", 0, data.videoCount);
+
+            //update items
+            document.getElementById("title").innerText = data.title;
+            document.getElementById("description").innerText = data.description;
+            document.getElementById("thumbnail").src = data.thumbnail;
+            document.getElementById("banner").src = data.banner;
+
+            // Show the stats div
+            document.getElementById("channelStats").style.display = "block";
+
+            // Hide the error message if it was previously displayed
+            document.getElementById("error").style.display = "none";
+          } else {
+            // Show error message
+            const errorData = await response.json();
+            document.getElementById("error").innerText = errorData.error;
+            document.getElementById("error").style.display = "block";
+
+            // Hide the stats div
+            document.getElementById("channelStats").style.display = "none";
+          }
+        } catch (error) {
+          console.error("Error fetching channel stats:", error);
+        }
+      }
+
+      //this is how I count up the numbers
+      function updateCount(elementId, start, end) {
+        const element = document.getElementById(elementId);
+        element.innerText = start;
+
+        const duration = 1000; // milliseconds
+        const interval = 1; // milliseconds
+        const steps = duration / interval;
+        const increment = (end - start) / steps;
+
+        let current = start;
+
+        const update = () => {
+          current += increment;
+          element.innerText = Math.round(current).toLocaleString();
+
+          if (current >= end) {
+            const final = Number(end).toLocaleString();
+            console.log(final);
+            element.innerText = final;
+            clearInterval(timer);
+          }
+        };
+
+        const timer = setInterval(update, interval);
+      }
+    </script>
+  </body>
+</html>
