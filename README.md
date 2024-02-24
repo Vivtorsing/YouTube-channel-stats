@@ -16,7 +16,7 @@ To get started with the YouTube Channel Stats App, follow these steps:
 3. Run!
 
 ### Usage
-1. go to localhost:3000 in a web browser.
+1. go to localhost in a web browser.
 2. Enter the YouTube channel ID or username in the input field.
 3. Click the "Get Channel Stats" button or press enter to retrieve and display the channel statistics.
 
